@@ -6,6 +6,8 @@ from scipy.stats import kurtosis, skew
 from itertools import groupby
 from operator import itemgetter
 import readData
+import threshhold
+
 np.set_printoptions(threshold=np.nan)
 
 days = readData.days
@@ -24,69 +26,82 @@ for i, val in enumerate(flow):
 
 flowArray = np.asarray(flowArray)
 
-point = 120
-day = 4
+point = 30
+day = 5
 flowAtPoint = flowArray[:, :, point:point+1]
-
 print np.shape(flowAtPoint)
 
-diff  = [[] for i in range(0, 12)]
-mean  = [[] for i in range(0, 7)]
+threshhold = threshhold.threshhold
 attack = [[] for i in range(0, 12)]
 attack_type_list = [[] for i in range(0, 12)]
 attack_points = [[] for i in range(0, 12)]
 attack_type = [[] for i in range(0, 12)]
+depth = 12
 
-for i in range (0, 7):
-    for j in range (0, 288):
-        mean[i].append(np.mean(flowAtPoint[i:28:7, j, :])) 
-         
-print (np.shape(mean))
-
-for i in range (0, len(mean)):
-    plt.plot(mean[i])
-    plt.show()
-
-for i in range(0, 288 - len(diff)):
-    for j in range(0, len(diff)):
-        diff[j].append( np.absolute(np.mean(flowAtPoint[:, i:i+1, :]) - np.mean(flowAtPoint[:, i+j+1:i+j+1 + j+1, :])) )
+def FindAttack(tmp_attack_point, tmp_attack_type):
+    group_attack = [list(g) for k, g in groupby(tmp_attack_type)]
+    length_group = [len(i) for i in group_attack]
+    #print group_attack
+    #print length_group
+    for i in range(0, len(length_group) - 1):
+        length_group[i+1] = length_group[i] + length_group[i+1]
+        #print("################")
+        #print(i)
+        #print(length_group[i])
+        #print(length_group[i+1])
+    #print (length_group)
+    length_group = [i-1 for i in length_group]
+    #print(length_group)
+    attack_type = [k for k, g in groupby(tmp_attack_type)]
+    attack_point = [tmp_attack_point[i] for i in length_group]
     
-threshhold = [max(i) for i in diff]
+    return attack_point, attack_type
+    
+
 
 def Analysis(start):
+     
 
     end = start + start/100
     flowWithAttack = flowAtPoint[day, 0:288, :] 
-    flowWithAttack[150:200:2] = flowWithAttack[150:200:2] + 2*random.uniform(start, end) 
-    flowWithAttack[151:200:2] = flowWithAttack[151:200:2] + 2*random.uniform(start, end)       
+    flowWithAttack[150:180] = flowWithAttack[150:180] + random.uniform(start, end) 
+    #flowWithAttack[151:200:2] = flowWithAttack[151:200:2] + random.uniform(start, end)       
     
-    for i in range(0, 288 -len(diff)):
-        for j in range(0, len(diff)):
+    for i in range(0, 288 - depth):
+        for j in range(0, depth):
             if (abs( np.mean(flowWithAttack[i+j+1:i+j+1 + j+1]) - np.mean(flowWithAttack[i:i+j+1])) > threshhold[j]):
                 attack[j].append(i+j+1)
                 attack_type_list[j].append(np.sign(np.mean(flowWithAttack[i+j+1:i+j+1 + j+1]) - np.mean(flowWithAttack[i:i+j+1])))
     
     for i in range (0, len(attack)):
+        tmp_attack_point = []
+        tmp_attack_type = []
         for j, g in groupby(enumerate(attack[i]), lambda (k,x):k-x):
             tmpList = map(itemgetter(1), g)
             var_1 = tmpList[len(tmpList)/2]
-            attack_points[i].append(var_1)
+            tmp_attack_point.append(var_1)
             var_2 = attack_type_list[i][attack[i].index(var_1)]
-            attack_type[i].append(var_2)
+            tmp_attack_type.append(var_2)
+        attack_points[i], attack_type[i] = FindAttack(tmp_attack_point, tmp_attack_type)
         
         print("###############")   
         print(attack[i])
         print(attack_type_list[i])
+        print (tmp_attack_point)
+        print (tmp_attack_type)
         print(attack_points[i])
         print(attack_type[i])
-            #attack_type.append(attack_type_list[i][attack[i].index(var)])
+        
 
 tmpFlowAtPoint = np.copy(flowAtPoint)
 Analysis (0.20)
 flowAtPoint = np.copy(tmpFlowAtPoint)
-print (attack_type)
-print(attack_points)
+#print (attack_type)
+#print(attack_points)
 
+'''
+plt.plot(flowAtPoint[day, 0:288, :])
+plt.show()
 for i in range(0, len(attack_type)):
     print("################")
     print(len(attack_type[i]))
@@ -97,5 +112,7 @@ for i in range(0, len(attack)):
     plt.grid()
     plt.grid()
     plt.show()
+'''
+
          
 

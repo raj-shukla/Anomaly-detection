@@ -24,7 +24,7 @@ for i, val in enumerate(flow):
 
 flowArray = np.asarray(flowArray)
 
-point = 120
+point = 65
 day = 4
 flowAtPoint = flowArray[:, :, point:point+1]
 
@@ -44,11 +44,19 @@ for i in range (0, 7):
         mean[i].append(np.mean(flowAtPoint[i:28:7, j, :])) 
     variance.append(np.var(mean[i]))
     standard_deviation.append(np.std(mean[i]))
+
+#for i in range (0, len(mean)):
+    #plt.plot(mean[i])
+    #plt.grid()
+    #plt.show()
+
+
          
 print variance
 print standard_deviation
 
 threshhold = np.mean(standard_deviation)
+print threshhold
 
 
 def Analysis(start):
@@ -66,7 +74,7 @@ def Analysis(start):
                 attack_type_list[j].append(np.sign( flowWithAttack[i] -  mean[day][i] ))
    
 tmpFlowAtPoint = np.copy(flowAtPoint)
-Analysis (0.10)
+Analysis (0.20)
 flowAtPoint = np.copy(tmpFlowAtPoint)
 print (attack_type)
 print(attack_points)
