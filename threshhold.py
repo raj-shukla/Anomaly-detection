@@ -30,7 +30,6 @@ threshhold_list = [[] for i in range(0, 136)]
 def Difference(point):
     diff  = [[] for i in range(0, 12)]
     flowAtPoint = flowArray[:, :, point:point+1]
-    print np.shape(flowAtPoint)
 
     for i in range(0, 288 - len(diff)):
         for j in range(0, len(diff)):
@@ -44,7 +43,5 @@ def Difference(point):
 array = []   
 for i in range (0, 136):
     threshhold_list[i] = Difference(i)
-    print (threshhold_list[i][8:11])
 
 threshhold = np.mean(threshhold_list, axis=0) + np.std(threshhold_list, axis=0)
-print (threshhold)
