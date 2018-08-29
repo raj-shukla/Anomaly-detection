@@ -101,7 +101,7 @@ def FindAccuracy(true_value, detected_value, detected_type, index_list, margin):
         else:
             start = False
             if(len(detected_value[i]) == 2):
-                if (detected_type[i] !=  [1, -1]):
+                if (detected_type[i] !=  [-1, 1]):
                     attack_type = attack_type + 1
                 if ( abs(true_value[i][0] - detected_value[i][0]) > margin ):
                     false_start = false_start + 1
@@ -125,7 +125,7 @@ def FindAccuracy(true_value, detected_value, detected_type, index_list, margin):
                         index = 0
                     else:
                         index = 1
-                    if (detected_type[i][index] != 1):
+                    if (detected_type[i][index] != -1):
                         attack_type = attack_type + 1
                 if ( (abs(true_value[i][1] - detected_value[i][1]) > margin) and (abs(true_value[i][1] - detected_value[i][2]) > margin) ):
                     false_end = false_end + 1
@@ -159,7 +159,7 @@ for i in range(0, 10):
             start = random.randint(0, 200)
             end = start + random.randint(20, 80)
             true_value.append([start, end])
-            attack_points_list, attack_type_list = Analysis (point, day, start, end, a_start,  "additive")
+            attack_points_list, attack_type_list = Analysis (point, day, start, end, a_start,  "deductive")
             index, attack_points, attack_type = ProcessAttack(attack_points_list, attack_type_list)
             detected_value.append(attack_points)
             detected_type.append(attack_type)
